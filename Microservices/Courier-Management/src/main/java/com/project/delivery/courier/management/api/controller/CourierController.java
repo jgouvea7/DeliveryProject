@@ -9,6 +9,8 @@ import com.project.delivery.courier.management.domain.service.CourierPayoutServi
 import com.project.delivery.courier.management.domain.service.CourierRegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
@@ -17,8 +19,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.util.Random;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/couriers")
 @RequiredArgsConstructor
@@ -51,9 +55,18 @@ public class CourierController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    @SneakyThrows
     @PostMapping("/payout-calculation")
     public CourierPayoutResultModel calculate(
             @RequestBody CourierPayoutCalculationInput input) {
+        log.info("Calculating");
+        if (Math.random() < 0.5) {
+            throw new RuntimeException();
+        }
+
+        int millis = new Random().nextInt(250);
+        Thread.sleep(millis);
+
         BigDecimal payoutFee = courierPayoutService.calculate(input.getDistanceInKm());
         return new CourierPayoutResultModel(payoutFee);
     }
